@@ -42,7 +42,7 @@
   height: 500px;
   border-radius: 50%;
   filter: blur(80px);
-  opacity: 0.15;
+  opacity: 0.25;
   animation: drift 15s infinite alternate ease-in-out;
 }
 
