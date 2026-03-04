@@ -15,6 +15,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "MaterialAIze",
   description: "AI-powered material property prediction",
+  icons: {
+    icon: "app/icon.png", // This looks in your 'public' folder
+    shortcut: "/icon.png",
+    apple: "/icon.png",
+  },
 };
 
 export default function RootLayout({
