@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MateriAIlize",
+  title: "MaterialAIze",
   description: "AI-powered material property prediction",
 };
 
