@@ -5,7 +5,7 @@ export function AppHeader() {
         <h1 className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-2xl font-black tracking-tight text-transparent">
           MaterialAIze
         </h1>
-        <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">FYP System</div>
+        <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">MCS 18 FYP</div>
       </div>
     </header>
   );
