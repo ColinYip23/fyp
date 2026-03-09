@@ -35,7 +35,7 @@ export default function Home() {
       </main>
 
       <footer className="mt-12 py-10 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400">
-        MateriAIlize Analysis Engine | 2026
+        Material Analysis Engine
       </footer>
     </div>
   );
