@@ -14,6 +14,7 @@ export default function Home() {
 
   const [fileError, setFileError] = useState<string | null>(null);
 
+  // Validate the selected file before starting the prediction.
   function validateCifFile(selectedFile: File | null): string | null {
     if (!selectedFile) {
       const error = "Please select a file to upload.";
@@ -35,6 +36,20 @@ export default function Home() {
 
     return null;
   }
+
+  // Handle file selection and validate the file before setting it for prediction.
+  function handleFileSelected(selectedFile: File | null) {
+    const error = validateCifFile(selectedFile);
+    if (error) {
+      setFileError(error);
+      setFileError(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      return;
+    }
+  }
+
 
   return (
     <div className="relative min-h-screen font-sans selection:bg-blue-100 dark:selection:bg-blue-900/30">
