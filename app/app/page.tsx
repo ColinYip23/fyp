@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { AuroraBackground } from './components/AuroraBackground';
 import { AppHeader } from './components/AppHeader';
 import { IntroSection } from './components/IntroSection';
@@ -11,6 +11,30 @@ import { usePrediction } from './hooks/usePrediction';
 export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { file, status, progress, setFile, startPrediction } = usePrediction();
+
+  const [fileError, setFileError] = useState<string | null>(null);
+
+  function validateCifFile(selectedFile: File | null): string | null {
+    if (!selectedFile) {
+      const error = "Please select a file to upload.";
+      setFileError(error);
+      return error;
+    }
+
+    const fileName = selectedFile.name.toLowerCase();
+
+    if (!fileName.endsWith('.cif')) {
+      return "Only .cif files are allowed.";
+    }
+    
+    if (selectedFile.size === 0){
+      return "The selected file is empty.";
+    }
+
+    // Need to add validation for large file.
+
+    return null;
+  }
 
   return (
     <div className="relative min-h-screen font-sans selection:bg-blue-100 dark:selection:bg-blue-900/30">
@@ -28,7 +52,7 @@ export default function Home() {
             progress={progress}
             fileInputRef={fileInputRef}
             onFileSelected={setFile}
-            onRunAnalysis={startPrediction}
+            onRunAnalysis={startPrediction}     
           />
           <DownloadButton disabled={status !== 'ready'} />
         </div>
