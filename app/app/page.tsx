@@ -50,7 +50,18 @@ export default function Home() {
     }
   }
 
+  // Handle the "Run Analysis" button click, validate the file, and start the prediction if valid.
+  function handleRunAnalysis() {
+    const error = validateCifFile(file);
 
+    if (error) {
+      setFileError(error);
+      return;
+    }
+    setFileError(null);
+    startPrediction();
+  }
+  
   return (
     <div className="relative min-h-screen font-sans selection:bg-blue-100 dark:selection:bg-blue-900/30">
       <title>MateriAIlize</title>
