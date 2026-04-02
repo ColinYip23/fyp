@@ -25,15 +25,18 @@ export default function Home() {
     const fileName = selectedFile.name.toLowerCase();
 
     if (!fileName.endsWith('.cif')) {
+      console.error("Invalid file type selected:", selectedFile.type);
       return "Only .cif files are allowed.";
     }
     
     if (selectedFile.size === 0){
+      console.error("Selected file is empty.");
       return "The selected file is empty.";
     }
 
     // Need to add validation for large file.
 
+    console.log("Selected file is valid:", selectedFile.name, selectedFile.size);
     return null;
   }
 
@@ -41,13 +44,14 @@ export default function Home() {
   function handleFileSelected(selectedFile: File | null) {
     const error = validateCifFile(selectedFile);
     if (error) {
-      setFileError(error);
       setFileError(null);
+      setFileError(error);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
       return;
     }
+    setFileError(null);
   }
 
   // Handle the "Run Analysis" button click, validate the file, and start the prediction if valid.
@@ -61,7 +65,7 @@ export default function Home() {
     setFileError(null);
     startPrediction();
   }
-  
+
   return (
     <div className="relative min-h-screen font-sans selection:bg-blue-100 dark:selection:bg-blue-900/30">
       <title>MateriAIlize</title>
@@ -77,9 +81,13 @@ export default function Home() {
             status={status}
             progress={progress}
             fileInputRef={fileInputRef}
-            onFileSelected={setFile}
-            onRunAnalysis={startPrediction}     
+            onFileSelected={handleFileSelected}
+            onRunAnalysis={handleRunAnalysis}
+            fileError={fileError}
           />
+
+          {fileError && <p className="text-red-500 text-center">{fileError}</p>}
+
           <DownloadButton disabled={status !== 'ready'} />
         </div>
       </main>

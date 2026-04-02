@@ -11,6 +11,7 @@ interface UploadCardProps {
   fileInputRef: RefObject<HTMLInputElement | null>;
   onFileSelected: (file: File | null) => void;
   onRunAnalysis: () => void;
+  fileError?: string | null;
 }
 
 export function UploadCard({
@@ -20,6 +21,7 @@ export function UploadCard({
   fileInputRef,
   onFileSelected,
   onRunAnalysis,
+  fileError,
 }: UploadCardProps) {
   return (
     <motion.div className="overflow-hidden rounded-[2.5rem] border border-white/40 bg-white/60 shadow-2xl backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
