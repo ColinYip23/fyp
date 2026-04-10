@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 from pathlib import Path
 import uuid
@@ -106,3 +106,16 @@ def get_status(run_id):
 
     return jsonify(status), 200
 
+# File download handler
+@app.route("/download/<run_id>", methods=["GET"])
+def download_file(run_id):
+    run_dir = BASE_DIR / run_id
+    output_path = run_dir / "output.csv"
+
+    if not output_path.exists():
+        return jsonify({"error": "File not found"}), 404
+
+    return send_file(output_path, as_attachment=True, download_name="output.csv")
+
+if __name__ == "__main__":
+    app.run(debug=True)
