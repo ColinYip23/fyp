@@ -10,7 +10,7 @@ import { usePrediction } from './hooks/usePrediction';
 
 export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { file, status, progress, runId, error, setFile, startPrediction } = usePrediction();
+  const { file, status, progress, runId, error, setFile, startPrediction} = usePrediction();
 
   const [fileError, setFileError] = useState<string | null>(null);
 
@@ -89,7 +89,10 @@ export default function Home() {
 
           {fileError && <p className="text-red-500 text-center">{fileError}</p>}
 
-          <DownloadButton disabled={status !== 'ready'} runId={runId} />
+          <DownloadButton 
+          disabled={status !== 'ready'} 
+          runId={runId} 
+          />
         </div>
       </main>
 

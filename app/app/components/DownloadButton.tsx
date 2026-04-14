@@ -1,11 +1,21 @@
+import { usePrediction } from "../hooks/usePrediction";
+
 interface DownloadButtonProps {
   disabled: boolean;
+  runId: string | null;
 }
 
-export function DownloadButton({ disabled }: DownloadButtonProps) {
+export function DownloadButton({ disabled, runId }: DownloadButtonProps) {
+
+  const downloadHandle = () => {
+    if (!runId) return;
+    window.location.href = `http://127.0.0.1:5000/download/${runId}`;
+  };
+
   return (
     <div className="flex justify-center">
       <button
+        onClick={downloadHandle}
         disabled={disabled}
         className={`flex items-center gap-3 rounded-full px-14 py-5 text-lg font-black transition-all
           ${
