@@ -4,7 +4,8 @@ from pathlib import Path
 import uuid
 import json
 import threading
-import time
+import pandas as pd
+from model_files.predict import predict
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000"])
@@ -31,28 +32,23 @@ def write_status(run_dir: Path, phase: str, message: str, done: int, total: int)
         }, f)
         
 # pipeline simulation (for testing)
-def fake_prediction_pipeline(run_dir: Path, input_filename: str):
+def prediction_pipeline(run_dir: Path, input_filename: str):
     try:
-        # Step 1
-        write_status(run_dir, "model", "Reading CIF file...", 1, 4)
-        time.sleep(2)
+        material_id = Path(input_filename).stem
+        write_status(run_dir, "model", "Preparing inference input", 1, 4)
+        
+        inference_csv = run_dir / "inference.csv"
+        pd.DataFrame([{"material_id": material_id}]).to_csv(inference_csv, index=False)      
 
-        # Step 2
-        write_status(run_dir, "model", "Running prediction...", 2, 4)
-        time.sleep(2)
-
-        # Step 3
-        write_status(run_dir, "postprocess", "Preparing output...", 3, 4)
-        time.sleep(2)
-
-        # Create fake output file
+        write_status(run_dir, "model", "Running model inference", 2, 4)
+        
+        df = predict(str(run_dir))
+        
+        write_status(run_dir, "post processing", "Saving prediction", 3, 4)
+        
         output_path = run_dir / "output.csv"
-
-        with open(output_path, "w", encoding="utf-8") as f:
-            f.write("filename,prediction\n")
-            f.write(f"{input_filename},stable_candidate\n")
-
-        # Final state
+        df.to_csv(output_path, index=False)
+        
         write_status(run_dir, "ready", "Output ready for download.", 4, 4)
 
     except Exception as e:
@@ -72,30 +68,31 @@ def upload():
     if not file.filename.endswith(".cif"):
         return jsonify({"error": "Only .cif files are allowed"}), 400    
     
-    if len(file.read()) == 0:
+    file_content = file.read()
+    
+    if len(file_content) == 0:
         return jsonify({"error": "Uploaded file is empty"}), 400
     
-    run_id = str(uuid.uuid4())
-    
-    run_dir = BASE_DIR / run_id
+    runId = str(uuid.uuid4())
+    run_dir = BASE_DIR / runId
     run_dir.mkdir(exist_ok=True)
     
     input_path = run_dir / file.filename
     
     with open(input_path, "wb") as f:
-        f.write(file.read())
+        f.write(file_content)
     
     write_status(run_dir, "uploaded", "File uploaded successfully", 0, 4)
     
-    thread = threading.Thread(target=fake_prediction_pipeline, args=(run_dir, file.filename), daemon=True)
+    thread = threading.Thread(target=prediction_pipeline, args=(run_dir, file.filename), daemon=True)
     thread.start()
     
-    return jsonify({"run_id": run_id}), 200
+    return jsonify({"runId": runId}), 200
 
 # Status check handler
-@app.route("/status/<run_id>", methods=["GET"])
-def get_status(run_id):
-    run_dir = BASE_DIR / run_id
+@app.route("/status/<runId>", methods=["GET"])
+def get_status(runId):
+    run_dir = BASE_DIR / runId
     status_path = run_dir / "status.json"
 
     if not status_path.exists():
@@ -107,9 +104,9 @@ def get_status(run_id):
     return jsonify(status), 200
 
 # File download handler
-@app.route("/download/<run_id>", methods=["GET"])
-def download_file(run_id):
-    run_dir = BASE_DIR / run_id
+@app.route("/download/<runId>", methods=["GET"])
+def download_file(runId):
+    run_dir = BASE_DIR / runId
     output_path = run_dir / "output.csv"
 
     if not output_path.exists():
