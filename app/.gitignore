@@ -42,3 +42,6 @@ next-env.d.ts
 
 venv/
 backend/venv/
+backend/model_files/__pycache__/
+runs/
+
