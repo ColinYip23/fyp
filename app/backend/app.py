@@ -11,9 +11,9 @@ app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000"])
 
 # The folder where all runs will be stored
-BASE_DIR = Path("runs")
+BASE_DIR = Path(__file__).resolve().parent / "runs"
 # Create a folder to store all runs if it doesn't exist
-BASE_DIR.mkdir(exist_ok=True)
+BASE_DIR.mkdir(parents=True, exist_ok=True)
 
 # 5 MB (not in use yet, but can be used to limit file size in the future)
 MAX_FILE_SIZE = 5 * 1024 * 1024
@@ -57,6 +57,7 @@ def prediction_pipeline(run_dir: Path, input_filename: str):
 # File upload handler
 @app.route("/upload", methods=["POST"])
 def upload():
+    print("UPLOAD HIT")
     if "file" not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
     

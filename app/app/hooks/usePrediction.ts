@@ -93,7 +93,6 @@ export function usePrediction() {
     }, 2000)
         };
 
-
   const startPrediction = async () => {
     if (!file) {
       setError("Please select a file.")

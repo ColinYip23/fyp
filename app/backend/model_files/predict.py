@@ -60,7 +60,3 @@ def predict(run_dir: str) -> pd.DataFrame:
     # print(f"\nSaved predictions to {output_path}")
     
     return df
-
-
-if __name__ == "__main__":
-    main()
