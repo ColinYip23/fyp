@@ -1,5 +1,6 @@
 'use client';
 
+import type { RefObject } from 'react';
 import { useEffect, useRef, useState } from 'react';
 
 export type PredictionStatus = 'idle' | 'processing' | 'ready' | 'error';
@@ -13,8 +14,8 @@ type StatusResponse = {
   };
 };
 
-export function usePrediction() {
-  const [file, setFileState] = useState<File | null>(null);
+export function usePrediction(fileInputRefs: Array<RefObject<HTMLInputElement | null>>) {
+  const [files, setFilesState] = useState<File[]>([]);
   const [status, setStatus] = useState<PredictionStatus>('idle');
   const [progress, setProgress] = useState(0);
   
@@ -38,10 +39,10 @@ export function usePrediction() {
     }
   };
 
-  const setFile = (nextFile: File | null) => {
-    console.log("setfile is called with", nextFile?.name);
+  const setFiles = (nextFiles: File[]) => {
+    console.log("setFiles is called with", nextFiles.map((file) => file.name));
     clearProgressInterval();
-    setFileState(nextFile);
+    setFilesState(nextFiles);
     setProgress(0);
     setStatus('idle');
     setRunId(null);
@@ -94,13 +95,20 @@ export function usePrediction() {
         };
 
   const startPrediction = async () => {
-    if (!file) {
-      setError("Please select a file.")
+    const selectedFilesFromInputs = fileInputRefs.flatMap((inputRef) =>
+      inputRef.current?.files ? Array.from(inputRef.current.files) : []
+    );
+    const selectedFiles = selectedFilesFromInputs.length > 0
+      ? selectedFilesFromInputs
+      : files;
+
+    if (selectedFiles.length === 0) {
+      setError("Please select at least one file.");
       return;
     }
 
     try{
-    console.log("Starting prediction for ", file.name);  
+    console.log("Starting prediction for ", selectedFiles.map((file) => file.name));
     clearProgressInterval();
     setStatus('processing');
     setProgress(0);
@@ -108,7 +116,9 @@ export function usePrediction() {
     setRunId(null);
 
     const formData = new FormData();
-    formData.append("file", file);
+    for (const file of selectedFiles) {
+      formData.append("files", file, file.name);
+    }
 
     const uploadRes = await fetch('http://127.0.0.1:5000/upload',{method: 'POST', body: formData});
     const uploadData = await uploadRes.json();
@@ -126,7 +136,7 @@ export function usePrediction() {
     pollStatus(newRunId);
     } catch (err) {
     setStatus("error");
-    setError("Something went wrong.");
+    setError(err instanceof Error ? err.message : "Something went wrong.");
   }
     // let currentProgress = 0;
     // intervalRef.current = setInterval(() => {
@@ -143,12 +153,12 @@ export function usePrediction() {
   };
 
   return {
-    file,
+    files,
     status,
     progress,
     runId,
     error,
-    setFile,
+    setFiles,
     startPrediction,
   };
 }
