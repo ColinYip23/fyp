@@ -75,7 +75,7 @@ export function UploadCard({
         <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
           {hasFiles
             ? files.slice(0, 3).map((selectedFile) => selectedFile.name).join(', ')
-            : 'Choose CIF files directly or pick a folder and we will validate every file inside'}
+            : 'Choose CIF files directly or pick a folder containing CIF files to analyze.'}
         </p>
         {files.length > 3 && (
           <p className="mt-2 text-xs text-zinc-400 dark:text-zinc-500">
