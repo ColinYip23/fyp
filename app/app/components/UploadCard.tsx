@@ -1,40 +1,63 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import type { RefObject } from 'react';
+import type { InputHTMLAttributes, RefObject } from 'react';
 import type { PredictionStatus } from '../hooks/usePrediction';
 
+type FolderInputAttributes = InputHTMLAttributes<HTMLInputElement> & {
+  directory?: string;
+  webkitdirectory?: string;
+};
+
 interface UploadCardProps {
-  file: File | null;
+  files: File[];
   status: PredictionStatus;
   progress: number;
   fileInputRef: RefObject<HTMLInputElement | null>;
-  onFileSelected: (file: File | null) => void;
+  folderInputRef: RefObject<HTMLInputElement | null>;
+  onFileSelected: (files: File[]) => void;
   onRunAnalysis: () => void;
-  fileError?: string | null;
 }
 
 export function UploadCard({
-  file,
+  files,
   status,
   progress,
   fileInputRef,
+  folderInputRef,
   onFileSelected,
   onRunAnalysis,
-  fileError,
 }: UploadCardProps) {
+  const hasFiles = files.length > 0;
+  const fileLabel =
+    files.length === 1 ? files[0].name : `${files.length} CIF files selected`;
+  const folderInputProps: FolderInputAttributes = {
+    directory: '',
+    webkitdirectory: '',
+  };
+
   return (
     <motion.div className="overflow-hidden rounded-[2.5rem] border border-white/40 bg-white/60 shadow-2xl backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
       <div
         onClick={() => fileInputRef.current?.click()}
         className={`group relative flex cursor-pointer flex-col items-center justify-center p-20 transition-all
-          ${file ? 'bg-blue-600/5' : 'hover:bg-zinc-500/5'}`}
+          ${hasFiles ? 'bg-blue-600/5' : 'hover:bg-zinc-500/5'}`}
       >
         <input
           type="file"
+          multiple
+          accept=".cif"
           ref={fileInputRef}
           className="hidden"
-          onChange={(event) => onFileSelected(event.target.files?.[0] ?? null)}
+          onChange={(event) => onFileSelected(Array.from(event.target.files ?? []))}
+        />
+        <input
+          type="file"
+          multiple
+          ref={folderInputRef}
+          className="hidden"
+          onChange={(event) => onFileSelected(Array.from(event.target.files ?? []))}
+          {...folderInputProps}
         />
 
         <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-blue-600 text-white shadow-xl shadow-blue-200 dark:shadow-none">
@@ -48,11 +71,41 @@ export function UploadCard({
           </svg>
         </div>
 
-        <h3 className="text-xl font-bold">{file ? file.name : 'Upload Dataset'}</h3>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">Drag your dataset here or browse files</p>
+        <h3 className="text-xl font-bold">{hasFiles ? fileLabel : 'Upload CIF Files'}</h3>
+        <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
+          {hasFiles
+            ? files.slice(0, 3).map((selectedFile) => selectedFile.name).join(', ')
+            : 'Choose CIF files directly or pick a folder and we will validate every file inside'}
+        </p>
+        {files.length > 3 && (
+          <p className="mt-2 text-xs text-zinc-400 dark:text-zinc-500">
+            +{files.length - 3} more files
+          </p>
+        )}
 
-        {file && status === 'idle' && (
+        <div
+          className="mt-8 flex flex-wrap items-center justify-center gap-3"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="rounded-full border border-zinc-300 bg-white px-6 py-3 text-sm font-bold text-zinc-900 transition-transform duration-200 hover:-translate-y-0.5 hover:scale-105 dark:border-white/15 dark:bg-white/5 dark:text-white"
+          >
+            Select Files
+          </button>
+          <button
+            type="button"
+            onClick={() => folderInputRef.current?.click()}
+            className="rounded-full border border-zinc-300 bg-white px-6 py-3 text-sm font-bold text-zinc-900 transition-transform duration-200 hover:-translate-y-0.5 hover:scale-105 dark:border-white/15 dark:bg-white/5 dark:text-white"
+          >
+            Select Folder
+          </button>
+        </div>
+
+        {hasFiles && status === 'idle' && (
           <motion.button
+            type="button"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             onClick={(event) => {
