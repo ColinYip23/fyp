@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 import pandas as pd
 from torch_geometric.loader import DataLoader
 from pathlib import Path
@@ -18,6 +19,7 @@ MP_API_KEY = os.getenv("MP_API_KEY")
 THERMO_TYPES = ["GGA_GGA+U"]
 STABLE_EHULL_TOL = 1e-6
 _phase_diagram_cache: dict[str, PhaseDiagram] = {}
+MC_DROPOUT_SAMPLES = int(os.getenv("MC_DROPOUT_SAMPLES", "30"))
 
 model = CGCNNRegressorStrong(
     num_embeddings = 100,
@@ -45,6 +47,35 @@ else:
 # --- FIX END ---
 
 model.eval()
+
+
+def enable_dropout_layers(module: nn.Module) -> None:
+    for child_module in module.modules():
+        if isinstance(child_module, nn.Dropout):
+            child_module.train()
+
+
+def predict_with_mc_dropout(batch, samples: int = MC_DROPOUT_SAMPLES) -> tuple[list[float], list[float]]:
+    if samples <= 1:
+        model.eval()
+        out = model(batch)
+        prediction = out.detach().cpu().view(-1).float()
+        return prediction.tolist(), [0.0] * prediction.numel()
+
+    model.eval()
+    enable_dropout_layers(model)
+
+    predictions = []
+    for _ in range(samples):
+        out = model(batch)
+        predictions.append(out.detach().cpu().view(-1).float())
+
+    stacked_predictions = torch.stack(predictions)
+    mean_prediction = stacked_predictions.mean(dim=0)
+    std_prediction = stacked_predictions.std(dim=0, unbiased=False)
+
+    model.eval()
+    return mean_prediction.tolist(), std_prediction.tolist()
 
 
 def extract_material_metadata(structure: Structure, material_id: str) -> dict:
@@ -181,11 +212,18 @@ def classify_stability(structure: Structure, predicted_formation_energy_per_atom
     }
 
 
-def build_output_row(cif_path: Path, material_id: str, predicted_formation_energy_per_atom: float) -> dict:
+def build_output_row(
+    cif_path: Path,
+    material_id: str,
+    predicted_formation_energy_per_atom: float,
+    mc_dropout_std_ev_per_atom: float,
+) -> dict:
     structure = Structure.from_file(cif_path)
     return {
         **extract_material_metadata(structure, material_id),
         "predicted_formation_energy_per_atom": predicted_formation_energy_per_atom,
+        "mc_dropout_std_ev_per_atom": mc_dropout_std_ev_per_atom,
+        "mc_dropout_samples": MC_DROPOUT_SAMPLES,
         **classify_stability(structure, predicted_formation_energy_per_atom),
     }
 
@@ -211,18 +249,31 @@ def predict(run_dir: str) -> pd.DataFrame:
     with torch.no_grad():
         for batch in loader:
             batch = batch.to(device)
-            out = model(batch)
-            
-            # Convert to scalar
-            val = out.detach().cpu().view(-1).tolist()
-            
-            # De-normalize the prediction if needed
-            # formula: (normalized_val * std) + mean
-            denormalized_val = [v * target_std + target_mean for v in val]
+            mean_predictions, std_predictions = predict_with_mc_dropout(batch)
 
-            for material_id, prediction in zip(batch.material_id, denormalized_val):
+            denormalized_predictions = [
+                prediction * target_std + target_mean
+                for prediction in mean_predictions
+            ]
+            denormalized_stds = [
+                uncertainty * abs(target_std)
+                for uncertainty in std_predictions
+            ]
+
+            for material_id, prediction, uncertainty in zip(
+                batch.material_id,
+                denormalized_predictions,
+                denormalized_stds,
+            ):
                 cif_path = run_dir / f"{material_id}.cif"
-                rows.append(build_output_row(cif_path, material_id, prediction))
+                rows.append(
+                    build_output_row(
+                        cif_path,
+                        material_id,
+                        prediction,
+                        uncertainty,
+                    )
+                )
 
     df = pd.DataFrame(rows)
     
