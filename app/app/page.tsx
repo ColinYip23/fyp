@@ -10,54 +10,63 @@ import { usePrediction } from './hooks/usePrediction';
 
 export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { file, status, progress, runId, error, setFile, startPrediction} = usePrediction();
+  const folderInputRef = useRef<HTMLInputElement>(null);
+  const { files, status, progress, runId, error, setFiles, startPrediction } = usePrediction([
+    fileInputRef,
+    folderInputRef,
+  ]);
 
   const [fileError, setFileError] = useState<string | null>(null);
 
-  // Validate the selected file before starting the prediction.
-  function validateCifFile(selectedFile: File | null): string | null {
-    if (!selectedFile) {
+  // Validate the selected files before starting the prediction.
+  function validateCifFiles(selectedFiles: File[]): string | null {
+    if (selectedFiles.length === 0) {
       const error = "Please select a file to upload.";
       setFileError(error);
       return error;
     }
 
-    const fileName = selectedFile.name.toLowerCase();
+    for (const selectedFile of selectedFiles) {
+      const fileName = selectedFile.name.toLowerCase();
 
-    if (!fileName.endsWith('.cif')) {
-      console.error("Invalid file type selected:", selectedFile.type);
-      return "Only .cif files are allowed.";
-    }
-    
-    if (selectedFile.size === 0){
-      console.error("Selected file is empty.");
-      return "The selected file is empty.";
+      if (!fileName.endsWith('.cif')) {
+        console.error("Invalid file type selected:", selectedFile.type);
+        return `Only .cif files are allowed. Invalid file: "${selectedFile.name}".`;
+      }
+
+      if (selectedFile.size === 0) {
+        console.error("Selected file is empty.");
+        return `The file "${selectedFile.name}" is empty.`;
+      }
     }
 
     // Need to add validation for large file.
 
-    console.log("Selected file is valid:", selectedFile.name, selectedFile.size);
+    console.log("Selected files are valid:", selectedFiles.map((file) => file.name));
     return null;
   }
 
-  // Handle file selection and validate the file before setting it for prediction.
-  function handleFileSelected(selectedFile: File | null) {
-    const error = validateCifFile(selectedFile);
+  // Handle file selection and validate the files before setting them for prediction.
+  function handleFileSelected(selectedFiles: File[]) {
+    const error = validateCifFiles(selectedFiles);
     if (error) {
       setFileError(null);
       setFileError(error);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
+      if (folderInputRef.current) {
+        folderInputRef.current.value = '';
+      }
       return;
     }
-    setFile(selectedFile);
+    setFiles(selectedFiles);
     setFileError(null);
   }
 
-  // Handle the "Run Analysis" button click, validate the file, and start the prediction if valid.
+  // Handle the "Run Analysis" button click, validate the files, and start the prediction if valid.
   function handleRunAnalysis() {
-    const error = validateCifFile(file);
+    const error = validateCifFiles(files);
 
     if (error) {
       setFileError(error);
@@ -78,16 +87,16 @@ export default function Home() {
 
         <div className="w-full space-y-8">
           <UploadCard
-            file={file}
+            files={files}
             status={status}
             progress={progress}
             fileInputRef={fileInputRef}
+            folderInputRef={folderInputRef}
             onFileSelected={handleFileSelected}
             onRunAnalysis={handleRunAnalysis}
-            fileError={fileError}
           />
 
-          {fileError && <p className="text-red-500 text-center">{fileError}</p>}
+          {(fileError || error) && <p className="text-center text-red-500">{fileError ?? error}</p>}
 
           <DownloadButton 
           disabled={status !== 'ready'} 
