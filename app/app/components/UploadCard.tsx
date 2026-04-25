@@ -1,7 +1,8 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import type { InputHTMLAttributes, RefObject } from 'react';
+import { useState } from 'react';
+import type { DragEvent, InputHTMLAttributes, RefObject } from 'react';
 import type { PredictionStatus } from '../hooks/usePrediction';
 
 type FolderInputAttributes = InputHTMLAttributes<HTMLInputElement> & {
@@ -28,6 +29,7 @@ export function UploadCard({
   onFileSelected,
   onRunAnalysis,
 }: UploadCardProps) {
+  const [isDragging, setIsDragging] = useState(false);
   const hasFiles = files.length > 0;
   const fileLabel =
     files.length === 1 ? files[0].name : `${files.length} CIF files selected`;
@@ -35,12 +37,44 @@ export function UploadCard({
     directory: '',
     webkitdirectory: '',
   };
+  const uploadMessage = isDragging
+    ? 'Drop CIF files here'
+    : hasFiles
+      ? fileLabel
+      : 'Upload CIF Files';
+
+  function handleDragOver(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+    setIsDragging(true);
+  }
+
+  function handleDragLeave(event: DragEvent<HTMLDivElement>) {
+    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+      setIsDragging(false);
+    }
+  }
+
+  function handleDrop(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    setIsDragging(false);
+
+    const droppedFiles = Array.from(event.dataTransfer.files);
+    if (droppedFiles.length > 0) {
+      onFileSelected(droppedFiles);
+    }
+  }
 
   return (
     <motion.div className="overflow-hidden rounded-[2.5rem] border border-white/40 bg-white/60 shadow-2xl backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
       <div
         onClick={() => fileInputRef.current?.click()}
+        onDragEnter={handleDragOver}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
         className={`group relative flex cursor-pointer flex-col items-center justify-center p-20 transition-all
+          ${isDragging ? 'bg-blue-600/10 ring-4 ring-inset ring-blue-500/30' : ''}
           ${hasFiles ? 'bg-blue-600/5' : 'hover:bg-zinc-500/5'}`}
       >
         <input
@@ -71,11 +105,13 @@ export function UploadCard({
           </svg>
         </div>
 
-        <h3 className="text-xl font-bold">{hasFiles ? fileLabel : 'Upload CIF Files'}</h3>
+        <h3 className="text-xl font-bold">{uploadMessage}</h3>
         <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
-          {hasFiles
+          {isDragging
+            ? 'Release to add the dropped files to this analysis.'
+            : hasFiles
             ? files.slice(0, 3).map((selectedFile) => selectedFile.name).join(', ')
-            : 'Choose CIF files directly or pick a folder containing CIF files to analyze.'}
+            : 'Choose CIF files, pick a folder, or drag and drop CIF files here to analyze.'}
         </p>
         {files.length > 3 && (
           <p className="mt-2 text-xs text-zinc-400 dark:text-zinc-500">
