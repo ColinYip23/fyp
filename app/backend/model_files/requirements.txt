@@ -7,3 +7,6 @@ pymatgen
 tqdm
 mp-api
 python-dotenv
+flask
+flask-cors
+gunicorn
