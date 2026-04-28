@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 
 interface PredictionResult {
   [key: string]: string | number;
@@ -25,7 +26,9 @@ export function ResultsDisplay({ runId }: ResultsDisplayProps) {
   const [columns, setColumns] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showInfo, setShowInfo] = useState(false);
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  console.log("Current API URL:", API_URL);
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -136,6 +139,25 @@ export function ResultsDisplay({ runId }: ResultsDisplayProps) {
           style={{ minHeight: `${minHeight}px`, maxHeight: `${maxHeight}px`, overflowY: 'auto' }}
           className="overflow-x-auto"
         >
+          <div className="flex items-center justify-between">
+            <h3 className="pl-5 text-lg font-bold text-zinc-900 dark:text-zinc-100">
+              Prediction Results
+            </h3>
+
+            <button
+              onClick={() => setShowInfo(true)}
+              className="rounded-full p-2 transition hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              aria-label="Explain result columns"
+            >
+              <Image
+                src="/infocon1.png"
+                alt="Information"
+                width={24}
+                height={24}
+              />
+            </button>
+          </div>
+
           <table className="w-full">
             <thead className="sticky top-0 bg-zinc-50 dark:bg-zinc-800">
               <tr className="border-b border-zinc-200 dark:border-zinc-700">
@@ -169,6 +191,52 @@ export function ResultsDisplay({ runId }: ResultsDisplayProps) {
               ))}
             </tbody>
           </table>
+
+          {showInfo && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+              <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl dark:bg-zinc-900">
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="text-xl font-black text-zinc-900 dark:text-zinc-100">
+                    What do these results mean?
+                  </h3>
+
+                  <button
+                    onClick={() => setShowInfo(false)}
+                    className="rounded-full px-3 py-1 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="space-y-3 text-sm text-zinc-600 dark:text-zinc-300">
+                  <p>
+                    <strong>Material ID:</strong> The unique name or identifier for the uploaded material.
+                  </p>
+
+                  <p>
+                    <strong>Formula:</strong> The chemical formula of the material, such as the elements it contains.
+                  </p>
+
+                  <p>
+                    <strong>Chemical System:</strong> The group of elements that make up the material.
+                  </p>
+
+                  <p>
+                    <strong>Predicted Formation Energy:</strong> An estimate of how much energy is involved in forming the material.
+                  </p>
+
+                  <p>
+                    <strong>Predicted Energy Above Hull:</strong> A stability score. Lower values usually mean the material is more stable.
+                  </p>
+
+                  <p>
+                    <strong>Is Stable:</strong> A simple yes/no result showing whether the model thinks the material is likely stable.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
     
       </div>
