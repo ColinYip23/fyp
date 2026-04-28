@@ -2,6 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import {
+  ScatterChart,
+  Scatter,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+} from 'recharts';
 
 interface PredictionResult {
   [key: string]: string | number;
@@ -131,6 +139,15 @@ export function ResultsDisplay({ runId }: ResultsDisplayProps) {
   // Maximum height for 5 rows: header (50px) + 5 rows (56px each) + padding = 350px
   const maxHeight = 350;
 
+  const showScatter = results.length > 1;
+
+  const scatterData = results
+    .map((r) => ({
+      x: Number(r.predicted_formation_energy_per_atom),
+      y: Number(r.predicted_energy_above_hull_ev_per_atom),
+    }))
+    .filter((d) => !isNaN(d.x) && !isNaN(d.y));
+
   return (
     <div className="space-y-4">
       {/* Table Container with scrolling */}
@@ -191,6 +208,32 @@ export function ResultsDisplay({ runId }: ResultsDisplayProps) {
               ))}
             </tbody>
           </table>
+
+          {showScatter && (
+            <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-900">
+              <h3 className="mb-4 text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                Material Stability Scatter Plot
+              </h3>
+
+              <ScatterChart width={500} height={300}>
+                <CartesianGrid />
+                <XAxis
+                  type="number"
+                  dataKey="x"
+                  name="Formation Energy"
+                  label={{ value: 'Formation Energy', position: 'bottom' }}
+                />
+                <YAxis
+                  type="number"
+                  dataKey="y"
+                  name="Energy Above Hull"
+                  label={{ value: 'Energy Above Hull', angle: -90, position: 'insideLeft' }}
+                />
+                <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+                <Scatter data={scatterData} fill="#ef4444" />
+              </ScatterChart>
+            </div>
+          )}
 
           {showInfo && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
