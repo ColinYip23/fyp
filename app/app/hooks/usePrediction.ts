@@ -24,6 +24,8 @@ export function usePrediction(fileInputRefs: Array<RefObject<HTMLInputElement | 
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
   useEffect(() => {
     return () => {
       if (intervalRef.current) {
@@ -55,7 +57,8 @@ export function usePrediction(fileInputRefs: Array<RefObject<HTMLInputElement | 
 
     intervalRef.current = setInterval(async () => {
       try {
-        const res = await fetch(`http://127.0.0.1:5000/status/${currentRunId}`);
+        // const res = await fetch(`http://127.0.0.1:5000/status/${currentRunId}`); // for local testing
+        const res = await fetch(`${API_URL}/status/${currentRunId}`);
         const data: StatusResponse | {error: string} = await res.json();
         console.log("Poll status: ", data);
         if (!res.ok) {
@@ -119,8 +122,8 @@ export function usePrediction(fileInputRefs: Array<RefObject<HTMLInputElement | 
     for (const file of selectedFiles) {
       formData.append("files", file, file.name);
     }
-
-    const uploadRes = await fetch('http://127.0.0.1:5000/upload',{method: 'POST', body: formData});
+    // const uploadRes = await fetch('http://127.0.0.1:5000/upload',{method: 'POST', body: formData}); // for local testing
+    const uploadRes = await fetch(`${API_URL}/upload`,{method: 'POST', body: formData});
     const uploadData = await uploadRes.json();
 
     console.log("Upload data: ", uploadData);
