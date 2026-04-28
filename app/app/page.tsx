@@ -5,7 +5,7 @@ import { AuroraBackground } from './components/AuroraBackground';
 import { AppHeader } from './components/AppHeader';
 import { IntroSection } from './components/IntroSection';
 import { UploadCard } from './components/UploadCard';
-import { DownloadButton } from './components/DownloadButton';
+import { ResultsDisplay } from './components/ResultsDisplay';
 import { usePrediction } from './hooks/usePrediction';
 
 export default function Home() {
@@ -17,6 +17,7 @@ export default function Home() {
   ]);
 
   const [fileError, setFileError] = useState<string | null>(null);
+  const [showResults, setShowResults] = useState(false);
 
   // Validate the selected files before starting the prediction.
   function validateCifFiles(selectedFiles: File[]): string | null {
@@ -62,6 +63,7 @@ export default function Home() {
     }
     setFiles(selectedFiles);
     setFileError(null);
+    setShowResults(false);
   }
 
   // Handle the "Run Analysis" button click, validate the files, and start the prediction if valid.
@@ -98,10 +100,24 @@ export default function Home() {
 
           {(fileError || error) && <p className="text-center text-red-500">{fileError ?? error}</p>}
 
-          <DownloadButton 
-          disabled={status !== 'ready'} 
-          runId={runId} 
-          />
+          {/* Show Results Button */}
+          <div className="flex justify-center">
+            <button
+              onClick={() => setShowResults(!showResults)}
+              disabled={status !== 'ready'}
+              className={`flex items-center gap-3 rounded-full px-14 py-5 text-lg font-black transition-all
+                ${
+                  status !== 'ready'
+                    ? 'bg-zinc-200 text-zinc-400 dark:bg-zinc-800'
+                    : 'bg-blue-600 text-white shadow-2xl hover:scale-105 active:scale-95'
+                }`}
+            >
+              {showResults ? 'Hide Results' : 'Show Results'}
+            </button>
+          </div>
+
+          {/* Results Display */}
+          {showResults && runId && <ResultsDisplay runId={runId} />}
         </div>
       </main>
 
