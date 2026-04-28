@@ -183,4 +183,5 @@ def home():
     return jsonify({"message": "Welcome to the API"})
 
 if __name__ == "__main__":
-    app.run(debug=True, use_reloader=False)
+    # app.run(debug=True, use_reloader=False) // for local testing
+    app.run(debug=True, use_reloader=False, host="0.0.0.0", port=7860)

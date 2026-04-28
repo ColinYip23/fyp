@@ -5,11 +5,13 @@ interface DownloadButtonProps {
   runId: string | null;
 }
 
-export function DownloadButton({ disabled, runId }: DownloadButtonProps) {
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+export function DownloadButton({ disabled, runId }: DownloadButtonProps) {
   const downloadHandle = () => {
     if (!runId) return;
-    window.location.href = `http://127.0.0.1:5000/download/${runId}`;
+    // window.location.href = `http://127.0.0.1:5000/download/${runId}`; // for local testing
+    window.location.href = `${API_URL}/download/${runId}`;
   };
 
   return (
