@@ -34,7 +34,8 @@ export function ResultsDisplay({ runId }: ResultsDisplayProps) {
         setError(null);
         
         const response = await fetch(
-          `http://127.0.0.1:5000/download/${runId}`,
+          // `http://127.0.0.1:5000/download/${runId}`, // for local testing
+          `${API_URL}/download/${runId}`,
           { method: 'GET' }
         );
 
