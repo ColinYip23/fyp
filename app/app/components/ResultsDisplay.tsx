@@ -119,16 +119,18 @@ export function ResultsDisplay({ runId }: ResultsDisplayProps) {
     );
   }
 
-  // Determine max height for scrolling (approximately 5 rows + header)
-  // Each row is roughly 48px + header 40px = 40 + (5 * 48) = 280px
-  const maxHeight = Math.min(280 + 20, results.length * 48 + 40 + 20);
+  // Calculate heights for the table
+  // Minimum height to show at least 2 rows comfortably: header (50px) + 2 rows (56px each) = 162px
+  const minHeight = 200;
+  // Maximum height for 5 rows: header (50px) + 5 rows (56px each) + padding = 350px
+  const maxHeight = 350;
 
   return (
     <div className="space-y-4">
       {/* Table Container with scrolling */}
       <div className="rounded-lg border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
         <div
-          style={{ maxHeight: `${maxHeight}px`, overflowY: 'auto' }}
+          style={{ minHeight: `${minHeight}px`, maxHeight: `${maxHeight}px`, overflowY: 'auto' }}
           className="overflow-x-auto"
         >
           <table className="w-full">
