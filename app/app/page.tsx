@@ -8,6 +8,9 @@ import { UploadCard } from './components/UploadCard';
 import { ResultsDisplay } from './components/ResultsDisplay';
 import { usePrediction } from './hooks/usePrediction';
 import { ReadMeSection } from './components/ReadMeSection';
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import InfoIcon from '@mui/icons-material/Info';
+import IconButton from '@mui/material/IconButton';
 
 export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -20,6 +23,8 @@ export default function Home() {
   const [fileError, setFileError] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
   const [showReadMe, setShowReadMe] = useState(true);
+  
+
 
   // Validate the selected files before starting the prediction.
   function validateCifFiles(selectedFiles: File[]): string | null {
@@ -83,14 +88,16 @@ export default function Home() {
   return (
     <div className="relative min-h-screen font-sans selection:bg-blue-100 dark:selection:bg-blue-900/30">
       <title>MateriAIlize</title>
+
       <AuroraBackground />
       <AppHeader />
 
       <main className="relative z-10 mx-auto flex max-w-3xl flex-col items-center justify-center px-6 py-20">
 
-        <ReadMeSection />
+
 
         <IntroSection />
+
 
         <div className="w-full space-y-8">
           <UploadCard
