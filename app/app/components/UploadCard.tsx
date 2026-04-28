@@ -111,7 +111,7 @@ export function UploadCard({
             ? 'Release to add the dropped files to this analysis.'
             : hasFiles
             ? files.slice(0, 3).map((selectedFile) => selectedFile.name).join(', ')
-            : 'Choose CIF files, pick a folder, or drag and drop CIF files here to analyze.'}
+            : 'Choose CIF files, pick a folder, or drag and drop CIF files here.'}
         </p>
         {files.length > 3 && (
           <p className="mt-2 text-xs text-zinc-400 dark:text-zinc-500">
