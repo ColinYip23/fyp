@@ -7,6 +7,7 @@ import { IntroSection } from './components/IntroSection';
 import { UploadCard } from './components/UploadCard';
 import { ResultsDisplay } from './components/ResultsDisplay';
 import { usePrediction } from './hooks/usePrediction';
+import { ReadMeSection } from './components/ReadMeSection';
 
 export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -18,6 +19,7 @@ export default function Home() {
 
   const [fileError, setFileError] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
+  const [showReadMe, setShowReadMe] = useState(true);
 
   // Validate the selected files before starting the prediction.
   function validateCifFiles(selectedFiles: File[]): string | null {
@@ -85,6 +87,9 @@ export default function Home() {
       <AppHeader />
 
       <main className="relative z-10 mx-auto flex max-w-3xl flex-col items-center justify-center px-6 py-20">
+
+        <ReadMeSection />
+
         <IntroSection />
 
         <div className="w-full space-y-8">
