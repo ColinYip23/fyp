@@ -25,6 +25,7 @@ export function ResultsDisplay({ runId }: ResultsDisplayProps) {
   const [columns, setColumns] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -92,7 +93,8 @@ export function ResultsDisplay({ runId }: ResultsDisplayProps) {
 
   const downloadHandle = () => {
     if (!runId) return;
-    window.location.href = `http://127.0.0.1:5000/download/${runId}`;
+    // window.location.href = `http://127.0.0.1:5000/download/${runId}`; // for local testing
+    window.location.href = `${API_URL}/download/${runId}`;
   };
 
   if (loading) {
