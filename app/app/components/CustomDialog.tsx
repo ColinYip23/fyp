@@ -7,18 +7,22 @@ type CustomDialogProps = {
   open: boolean;
   onClose: () => void;
   children: ReactNode;
+  width?: string;
+  height?: string;
 };
 
-export function CustomDialog({ open, onClose, children }: CustomDialogProps) {
+export function CustomDialog({ open, onClose, children, width, height }: CustomDialogProps) {
     return (
       <Dialog
         open={open}
         onClose={onClose}
-        maxWidth="md"
-        fullWidth
+        maxWidth={false}
         sx={{
           "& .MuiDialog-paper": {
-            background: "transparent",
+            width,
+            height,
+            background: "rgba(24, 24, 27, 0.75)",
+            backdropFilter: "blur(12px)",
             boxShadow: "none",
             margin: 0,
             color: "inherit",
