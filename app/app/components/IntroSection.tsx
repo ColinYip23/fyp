@@ -7,6 +7,7 @@ import { ReadMeSection } from './ReadMeSection';
 import { useState } from 'react';
 import { Dialog, DialogTitle, DialogContent } from '@mui/material';
 import { CustomDialog } from './CustomDialog';
+import Button from '@mui/material/Button';
 
 
 export function IntroSection() {
@@ -25,14 +26,14 @@ export function IntroSection() {
       <p className="mt-4 text-zinc-500 dark:text-zinc-400">
         Powered by Graph Neural Networks for material stability prediction.
 
-      <IconButton sx={{color:'white'}} onClick={handleOpen}>
-        <InfoIcon />
-      </IconButton>
+      </p>
+      <Button sx={{color:'white', marginTop:2, marginBottom:0}} variant="outlined" onClick={handleOpen} startIcon={<InfoIcon />}>
+        Read me First
+      </Button>
 
-      <CustomDialog open={open} onClose={handleClose}>
+      <CustomDialog open={open} onClose={handleClose} height='auto' width='80vw'>
         <ReadMeSection />
       </CustomDialog>
-      </p>
     </div>
   );
 }
