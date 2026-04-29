@@ -227,6 +227,7 @@ export function ResultsDisplay({ runId }: ResultsDisplayProps) {
                   type="number"
                   dataKey="y"
                   name="Energy Above Hull"
+                  domain={[0, 1]}
                   label={{ value: 'Energy Above Hull', angle: -90, position: 'insideLeft' }}
                 />
                 <Tooltip cursor={{ strokeDasharray: '3 3' }} />
