@@ -10,6 +10,7 @@ import {
   Tooltip,
   CartesianGrid,
 } from 'recharts';
+import { CustomDialog } from './CustomDialog';
 
 interface PredictionResult {
   [key: string]: string | number;
@@ -37,6 +38,10 @@ export function ResultsDisplay({ runId }: ResultsDisplayProps) {
   const [showInfo, setShowInfo] = useState(false);
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   console.log("Current API URL:", API_URL);
+
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => {setOpen(true), setShowInfo(true)};
+  const handleClose = () => {setOpen(false), setShowInfo(false)};
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -152,17 +157,19 @@ export function ResultsDisplay({ runId }: ResultsDisplayProps) {
     <div className="space-y-4">
       {/* Table Container with scrolling */}
       <div className="rounded-lg border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
-        <div
+
+        {/* <div
           style={{ minHeight: `${minHeight}px`, maxHeight: `${maxHeight}px`, overflowY: 'auto' }}
           className="overflow-x-auto"
-        >
+        > */}
+
           <div className="flex items-center justify-between">
             <h3 className="pl-5 text-lg font-bold text-zinc-900 dark:text-zinc-100">
               Prediction Results
             </h3>
 
             <button
-              onClick={() => setShowInfo(true)}
+              onClick={() => handleOpen()}
               className="rounded-full p-2 transition hover:bg-zinc-100 dark:hover:bg-zinc-800"
               aria-label="Explain result columns"
             >
@@ -238,21 +245,22 @@ export function ResultsDisplay({ runId }: ResultsDisplayProps) {
 
           {showInfo && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-              <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl dark:bg-zinc-900">
-                <div className="mb-4 flex items-center justify-between">
-                  <h3 className="text-xl font-black text-zinc-900 dark:text-zinc-100">
-                    What do these results mean?
-                  </h3>
+              {/* <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl dark:bg-zinc-900"> */}
+                {/* <div className="mb-4 flex items-center justify-between"> */}
 
-                  <button
+                  {/* <button
                     onClick={() => setShowInfo(false)}
                     className="rounded-full px-3 py-1 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                  >
+                    >
                     ✕
-                  </button>
-                </div>
+                    </button> */}
+                {/* </div> */}
 
-                <div className="space-y-3 text-sm text-zinc-600 dark:text-zinc-300">
+                <CustomDialog open={open} onClose={handleClose} width='auto' height='auto'>
+                <div className="space-y-3 text-sm text-zinc-600 dark:text-zinc-300 m-4">
+                    <h3 className="text-xl font-black text-zinc-900 dark:text-zinc-100">
+                      What do these results mean?
+                    </h3>
                   <p>
                     <strong>Material ID:</strong> The unique name or identifier for the uploaded material.
                   </p>
@@ -277,22 +285,23 @@ export function ResultsDisplay({ runId }: ResultsDisplayProps) {
                     <strong>Is Stable:</strong> A simple yes/no result showing whether the model thinks the material is likely stable.
                   </p>
                 </div>
-              </div>
+                </CustomDialog>
+
+              {/* </div> */}
             </div>
           )}
 
-        </div>
+        {/* </div> */}
     
-      </div>
-
-      {/* Download Button */}
-      <div className="flex justify-center">
+        {/* Download Button */}
+      <div className="flex justify-center mt-2 mb-2">
         <button
           onClick={downloadHandle}
           className="flex items-center gap-3 rounded-full bg-blue-600 px-14 py-5 text-lg font-black text-white shadow-2xl transition-all hover:scale-105 active:scale-95"
         >
           Download Predictions
         </button>
+      </div>
       </div>
     </div>
   );
