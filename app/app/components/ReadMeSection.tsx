@@ -2,12 +2,12 @@
 
 export function ReadMeSection() {
   return (
-    <section className="w-full mb-16 rounded-2xl bg-white/70 dark:bg-zinc-900/60 backdrop-blur p-8 shadow-xl space-y-6">
+    <section className="w-full rounded-2xl bg-white/70 dark:bg-zinc-900/60 backdrop-blur p-8 shadow-xl space-y-6">
 
       {/* Title */}
-      <h2 className="text-3xl font-black text-center">
+      {/* <h2 className="text-3xl font-black text-center">
         Read Me First!
-      </h2>
+      </h2> */}
 
       {/* Purpose */}
       <div>
