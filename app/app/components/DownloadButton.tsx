@@ -15,7 +15,7 @@ export function DownloadButton({ disabled, runId }: DownloadButtonProps) {
   };
 
   return (
-    <div className="flex justify-center">
+    <div className="flex justify-center margin-bottom-4">
       <button
         onClick={downloadHandle}
         disabled={disabled}
