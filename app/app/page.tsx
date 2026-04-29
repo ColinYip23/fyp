@@ -11,6 +11,7 @@ import { ReadMeSection } from './components/ReadMeSection';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import IconButton from '@mui/material/IconButton';
+import { CustomDialog } from './components/CustomDialog';
 
 export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -23,6 +24,10 @@ export default function Home() {
   const [fileError, setFileError] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
   const [showReadMe, setShowReadMe] = useState(true);
+
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => {setOpen(true), setShowResults(true)};
+  const handleClose = () => {setOpen(false), setShowResults(false)};
   
 
 
@@ -115,7 +120,8 @@ export default function Home() {
           {/* Show Results Button */}
           <div className="flex justify-center">
             <button
-              onClick={() => setShowResults(!showResults)}
+              // onClick={() => setShowResults(!showResults)}
+              onClick={handleOpen} 
               disabled={status !== 'ready'}
               className={`flex items-center gap-3 rounded-full px-14 py-5 text-lg font-black transition-all
                 ${
@@ -129,7 +135,9 @@ export default function Home() {
           </div>
 
           {/* Results Display */}
-          {showResults && runId && <ResultsDisplay runId={runId} />}
+          <CustomDialog open={open} onClose={handleClose} width='90vw' height='auto'>
+            {showResults && runId && <ResultsDisplay runId={runId} />}
+          </CustomDialog>
         </div>
       </main>
 
