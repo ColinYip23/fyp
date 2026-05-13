@@ -245,16 +245,6 @@ export function ResultsDisplay({ runId }: ResultsDisplayProps) {
 
           {showInfo && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-              {/* <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl dark:bg-zinc-900"> */}
-                {/* <div className="mb-4 flex items-center justify-between"> */}
-
-                  {/* <button
-                    onClick={() => setShowInfo(false)}
-                    className="rounded-full px-3 py-1 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                    >
-                    ✕
-                    </button> */}
-                {/* </div> */}
 
                 <CustomDialog open={open} onClose={handleClose} width='auto' height='auto'>
                 <div className="space-y-3 text-sm text-zinc-600 dark:text-zinc-300 m-4">
@@ -287,11 +277,9 @@ export function ResultsDisplay({ runId }: ResultsDisplayProps) {
                 </div>
                 </CustomDialog>
 
-              {/* </div> */}
             </div>
           )}
 
-        {/* </div> */}
     
         {/* Download Button */}
       <div className="flex justify-center mt-2 mb-2">
