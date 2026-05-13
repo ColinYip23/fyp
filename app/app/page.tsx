@@ -33,6 +33,8 @@ export default function Home() {
 
   // Validate the selected files before starting the prediction.
   function validateCifFiles(selectedFiles: File[]): string | null {
+
+    // Check if any files were selected.
     if (selectedFiles.length === 0) {
       const error = "Please select a file to upload.";
       setFileError(error);
@@ -42,18 +44,20 @@ export default function Home() {
     for (const selectedFile of selectedFiles) {
       const fileName = selectedFile.name.toLowerCase();
 
+      // Check if the file has a .cif extension.
       if (!fileName.endsWith('.cif')) {
         console.error("Invalid file type selected:", selectedFile.type);
         return `Only .cif files are allowed. Invalid file: "${selectedFile.name}".`;
       }
 
+      // Check if the file is empty.
       if (selectedFile.size === 0) {
         console.error("Selected file is empty.");
         return `The file "${selectedFile.name}" is empty.`;
       }
     }
 
-    // Need to add validation for large file.
+    // Need to add validation for large files.
 
     console.log("Selected files are valid:", selectedFiles.map((file) => file.name));
     return null;
@@ -62,12 +66,15 @@ export default function Home() {
   // Handle file selection and validate the files before setting them for prediction.
   function handleFileSelected(selectedFiles: File[]) {
     const error = validateCifFiles(selectedFiles);
+    // If there's an error, reset the file inputs and show the error message.
     if (error) {
       setFileError(null);
       setFileError(error);
+      // Reset the file input fields to allow the user to select new files.
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
+      // Reset the folder input field as well, if it exists.
       if (folderInputRef.current) {
         folderInputRef.current.value = '';
       }
