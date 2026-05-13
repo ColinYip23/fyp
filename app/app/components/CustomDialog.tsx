@@ -11,6 +11,7 @@ type CustomDialogProps = {
   height?: string;
 };
 
+// Reusable custom dialog component that can be used across the app for displaying content in a dialog with consistent styling.
 export function CustomDialog({ open, onClose, children, width, height }: CustomDialogProps) {
     return (
       <Dialog
